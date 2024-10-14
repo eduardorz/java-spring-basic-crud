@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    HashMap<String, Object> data;
+
 
     @Autowired
     public ProductService(ProductRepository productRepository){
@@ -24,9 +26,9 @@ public class ProductService {
 
     public ResponseEntity<Object> newProduct(Product product){
         Optional<Product> res = productRepository.findProductByName(product.getName());
-        HashMap<String, Object> data = new HashMap<>();
+        data = new HashMap<>();
 
-        if(res.isPresent()){
+        if(res.isPresent() && product.getId()==null){
             data.put("error", true);
             data.put("message", "ya existe un producto con ese nombre");
             return new ResponseEntity<>(
@@ -34,12 +36,34 @@ public class ProductService {
                 HttpStatus.CONFLICT
             );
         }
+        data.put("message", "se guardó con exito");
+        if (product.getId()!=null){
+            data.put("message", "se actualizó con exito");
+        }
         productRepository.save(product);
         data.put("data", product);
-        data.put("message", "se guardó con exito");
         return new ResponseEntity<>(
                 data,
                 HttpStatus.CREATED
             );
+    }
+
+    public ResponseEntity<Object> deleteProduct(Long id){
+        data = new HashMap<>();
+        boolean exists = this.productRepository.existsById(id);
+        if(!exists){
+            data.put("error", true);
+            data.put("message", "No existe un producto con ese id");
+            return new ResponseEntity<>(
+                data,
+                HttpStatus.CONFLICT
+            );
+        }
+        productRepository.deleteById(id);
+        data.put("message", "producto eliminado");
+        return new ResponseEntity<>(
+            data,
+            HttpStatus.ACCEPTED
+        );
     }
 }
