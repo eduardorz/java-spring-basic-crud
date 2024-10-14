@@ -1,12 +1,14 @@
 package com.example.crud.product;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table
@@ -17,6 +19,7 @@ public class Product {
     private String name;
     private float price;
     private LocalDate date;
+    @Transient
     private int antiguedad;
 
     public Product(){
@@ -27,26 +30,22 @@ public class Product {
         Long id,
         String name,
         float price,
-        LocalDate date,
-        int antiguedad
+        LocalDate date
     ) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.date = date;
-        this.antiguedad = antiguedad;
     }
 
     public Product(
         String name,
         float price,
-        LocalDate date,
-        int antiguedad
+        LocalDate date
     ) {
         this.name = name;
         this.price = price;
         this.date = date;
-        this.antiguedad = antiguedad;
     }
 
     public Long getId() {
@@ -82,7 +81,7 @@ public class Product {
     }
 
     public int getAntiguedad() {
-        return antiguedad;
+        return Period.between(this.date, LocalDate.now()).getYears();
     }
 
     public void setAntiguedad(int antiguedad) {
